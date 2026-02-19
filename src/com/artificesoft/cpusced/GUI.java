@@ -1,3 +1,4 @@
+package com.artificesoft.cpusced;
 
 import java.awt.Color;
 import java.awt.Dimension;

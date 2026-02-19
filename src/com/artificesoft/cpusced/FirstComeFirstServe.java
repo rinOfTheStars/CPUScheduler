@@ -1,5 +1,7 @@
+package com.artificesoft.cpusced;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class FirstComeFirstServe extends CPUScheduler
@@ -7,20 +9,7 @@ public class FirstComeFirstServe extends CPUScheduler
     @Override
     public void process()
     {        
-        Collections.sort(this.getRows(), (Object o1, Object o2) -> {
-            if (((Row) o1).getArrivalTime() == ((Row) o2).getArrivalTime())
-            {
-                return 0;
-            }
-            else if (((Row) o1).getArrivalTime() < ((Row) o2).getArrivalTime())
-            {
-                return -1;
-            }
-            else
-            {
-                return 1;
-            }
-        });
+        this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
         
         List<Event> timeline = this.getTimeline();
         

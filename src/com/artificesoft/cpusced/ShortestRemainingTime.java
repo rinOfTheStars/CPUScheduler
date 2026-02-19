@@ -1,29 +1,13 @@
+package com.artificesoft.cpusced;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class PriorityPreemptive extends CPUScheduler
+public class ShortestRemainingTime extends CPUScheduler
 {
     @Override
     public void process()
     {
-        Collections.sort(this.getRows(), (Object o1, Object o2) -> {
-            if (((Row) o1).getArrivalTime() == ((Row) o2).getArrivalTime())
-            {
-                return 0;
-            }
-            else if (((Row) o1).getArrivalTime() < ((Row) o2).getArrivalTime())
-            {
-                return -1;
-            }
-            else
-            {
-                return 1;
-            }
-        });
+        this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
         
         List<Row> rows = Utility.deepCopy(this.getRows());
         int time = rows.get(0).getArrivalTime();
@@ -41,11 +25,11 @@ public class PriorityPreemptive extends CPUScheduler
             }
             
             Collections.sort(availableRows, (Object o1, Object o2) -> {
-                if (((Row) o1).getPriorityLevel()== ((Row) o2).getPriorityLevel())
+                if (((Row) o1).getBurstTime() == ((Row) o2).getBurstTime())
                 {
                     return 0;
                 }
-                else if (((Row) o1).getPriorityLevel() < ((Row) o2).getPriorityLevel())
+                else if (((Row) o1).getBurstTime() < ((Row) o2).getBurstTime())
                 {
                     return -1;
                 }

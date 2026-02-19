@@ -1,3 +1,4 @@
+package com.artificesoft.cpusced;
 
 import java.util.List;
 

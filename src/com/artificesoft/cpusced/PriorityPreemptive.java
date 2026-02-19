@@ -1,3 +1,4 @@
+package com.artificesoft.cpusced;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -5,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShortestRemainingTime extends CPUScheduler
+public class PriorityPreemptive extends CPUScheduler
 {
     @Override
     public void process()
@@ -41,11 +42,11 @@ public class ShortestRemainingTime extends CPUScheduler
             }
             
             Collections.sort(availableRows, (Object o1, Object o2) -> {
-                if (((Row) o1).getBurstTime() == ((Row) o2).getBurstTime())
+                if (((Row) o1).getPriorityLevel()== ((Row) o2).getPriorityLevel())
                 {
                     return 0;
                 }
-                else if (((Row) o1).getBurstTime() < ((Row) o2).getBurstTime())
+                else if (((Row) o1).getPriorityLevel() < ((Row) o2).getPriorityLevel())
                 {
                     return -1;
                 }
