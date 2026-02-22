@@ -1,86 +1,56 @@
 package com.artificesoft.cpusced;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class RoundRobin extends CPUScheduler
-{
+public class RoundRobin extends CPUScheduler {
     @Override
-    public void process()
-    {
-        Collections.sort(this.getRows(), (Object o1, Object o2) -> {
-            if (((Row) o1).getArrivalTime() == ((Row) o2).getArrivalTime())
-            {
-                return 0;
-            }
-            else if (((Row) o1).getArrivalTime() < ((Row) o2).getArrivalTime())
-            {
-                return -1;
-            }
-            else
-            {
-                return 1;
-            }
-        });
-        
+    public void process() {
+        this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
+
         List<Row> rows = Utility.deepCopy(this.getRows());
-        int time = rows.get(0).getArrivalTime();
+        int time = rows.getFirst().getArrivalTime();
         int timeQuantum = this.getTimeQuantum();
-        
-        while (!rows.isEmpty())
-        {
-            Row row = rows.get(0);
-            int bt = (row.getBurstTime() < timeQuantum ? row.getBurstTime() : timeQuantum);
+
+        while (!rows.isEmpty()) {
+            Row row = rows.getFirst();
+            int bt = (Math.min(row.getBurstTime(), timeQuantum));
             this.getTimeline().add(new Event(row.getProcessName(), time, time + bt));
             time += bt;
-            rows.remove(0);
-            
-            if (row.getBurstTime() > timeQuantum)
-            {
+            rows.removeFirst();
+
+            if (row.getBurstTime() > timeQuantum) {
                 row.setBurstTime(row.getBurstTime() - timeQuantum);
-                
-                for (int i = 0; i < rows.size(); i++)
-                {
-                    if (rows.get(i).getArrivalTime() > time)
-                    {
+
+                for (int i = 0; i < rows.size(); i++) {
+                    if (rows.get(i).getArrivalTime() > time) {
                         rows.add(i, row);
                         break;
-                    }
-                    else if (i == rows.size() - 1)
-                    {
+                    } else if (i == rows.size() - 1) {
                         rows.add(row);
                         break;
                     }
                 }
             }
         }
-        
-        Map map = new HashMap();
-        
-        for (Row row : this.getRows())
-        {
+
+        Map<String, Integer> map = new HashMap<>();
+
+        for (Row row : this.getRows()) {
             map.clear();
-            
-            for (Event event : this.getTimeline())
-            {
-                if (event.getProcessName().equals(row.getProcessName()))
-                {
-                    if (map.containsKey(event.getProcessName()))
-                    {
-                        int w = event.getStartTime() - (int) map.get(event.getProcessName());
+
+            for (Event event : this.getTimeline()) {
+                if (event.getProcessName().equals(row.getProcessName())) {
+                    if (map.containsKey(event.getProcessName())) {
+                        int w = event.getStartTime() - map.get(event.getProcessName());
                         row.setWaitingTime(row.getWaitingTime() + w);
-                    }
-                    else
-                    {
+                    } else {
                         row.setWaitingTime(event.getStartTime() - row.getArrivalTime());
                     }
-                    
+
                     map.put(event.getProcessName(), event.getFinishTime());
                 }
             }
-            
+
             row.setTurnaroundTime(row.getWaitingTime() + row.getBurstTime());
         }
     }

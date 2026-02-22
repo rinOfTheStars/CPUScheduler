@@ -2,10 +2,8 @@ package com.artificesoft.cpusced;
 
 import java.util.List;
 
-public class Main
-{
-    public static void main(String[] args)
-    {
+public class Main {
+    static void main() {
         System.out.println("-----------------FCFS----------------");
         fcfs();
         System.out.println("-----------------SJF-----------------");
@@ -19,9 +17,8 @@ public class Main
         System.out.println("-----------------RR------------------");
         rr();
     }
-    
-    public static void fcfs()
-    {
+
+    public static void fcfs() {
         CPUScheduler fcfs = new FirstComeFirstServe();
         fcfs.add(new Row("P1", 0, 5));
         fcfs.add(new Row("P2", 2, 4));
@@ -30,9 +27,8 @@ public class Main
         fcfs.process();
         display(fcfs);
     }
-    
-    public static void sjf()
-    {
+
+    public static void sjf() {
         CPUScheduler sjf = new ShortestJobFirst();
         sjf.add(new Row("P1", 0, 5));
         sjf.add(new Row("P2", 2, 3));
@@ -42,9 +38,8 @@ public class Main
         sjf.process();
         display(sjf);
     }
-    
-    public static void srt()
-    {
+
+    public static void srt() {
         CPUScheduler srt = new ShortestRemainingTime();
         srt.add(new Row("P1", 8, 1));
         srt.add(new Row("P2", 5, 1));
@@ -56,9 +51,8 @@ public class Main
         srt.process();
         display(srt);
     }
-    
-    public static void psn()
-    {
+
+    public static void psn() {
         CPUScheduler psn = new PriorityNonPreemptive();
         psn.add(new Row("P1", 8, 1));
         psn.add(new Row("P2", 5, 1));
@@ -70,9 +64,8 @@ public class Main
         psn.process();
         display(psn);
     }
-    
-    public static void psp()
-    {
+
+    public static void psp() {
         CPUScheduler psp = new PriorityPreemptive();
         psp.add(new Row("P1", 8, 1));
         psp.add(new Row("P2", 5, 1));
@@ -84,9 +77,8 @@ public class Main
         psp.process();
         display(psp);
     }
-    
-    public static void rr()
-    {
+
+    public static void rr() {
         CPUScheduler rr = new RoundRobin();
         rr.setTimeQuantum(2);
         rr.add(new Row("P1", 0, 4));
@@ -98,29 +90,25 @@ public class Main
         rr.process();
         display(rr);
     }
-    
-    public static void display(CPUScheduler object)
-    {
+
+    public static void display(CPUScheduler object) {
         System.out.println("Process\tAT\tBT\tWT\tTAT");
 
-        for (Row row : object.getRows())
-        {
+        for (Row row : object.getRows()) {
             System.out.println(row.getProcessName() + "\t" + row.getArrivalTime() + "\t" + row.getBurstTime() + "\t" + row.getWaitingTime() + "\t" + row.getTurnaroundTime());
         }
-        
+
         System.out.println();
-        
-        for (int i = 0; i < object.getTimeline().size(); i++)
-        {
+
+        for (int i = 0; i < object.getTimeline().size(); i++) {
             List<Event> timeline = object.getTimeline();
             System.out.print(timeline.get(i).getStartTime() + "(" + timeline.get(i).getProcessName() + ")");
-            
-            if (i == object.getTimeline().size() - 1)
-            {
+
+            if (i == object.getTimeline().size() - 1) {
                 System.out.print(timeline.get(i).getFinishTime());
             }
         }
-        
+
         System.out.println("\n\nAverage WT: " + object.getAverageWaitingTime() + "\nAverage TAT: " + object.getAverageTurnAroundTime());
     }
 }
