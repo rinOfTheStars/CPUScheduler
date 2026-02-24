@@ -1,10 +1,14 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers;
+
+import com.artificesoft.cpusced.utility.Utility;
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
 
 import java.util.*;
 
-public class RoundRobin extends CPUScheduler {
+public class RoundRobin extends AbstractSchedulerModel {
     @Override
-    public void process() {
+    public void simulate() {
         this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
 
         List<Row> rows = Utility.deepCopy(this.getRows());

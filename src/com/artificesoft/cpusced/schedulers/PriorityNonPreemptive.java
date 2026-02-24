@@ -1,4 +1,8 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers;
+
+import com.artificesoft.cpusced.utility.Utility;
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,19 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class PriorityNonPreemptive extends CPUScheduler {
+public class PriorityNonPreemptive extends AbstractSchedulerModel {
     /**
      * Creates a PSN scheduler model that updates processes that have been waiting in queue
-     * longer than a given threshold.
+     * longer than a given threshold, "rewarding" them.
      *
-     * @param rowUpdater      A {@link Function} object which modifies {@link Row}s passed to it.
-     * @param updateThreshold The number of simulated ticks a process needs to wait since it was last
+     * @param updateThreshold The number of simulated ticks a simulate needs to wait since it was last
      *                        'touched' (in this case, since it entered the simulated scheduler) before
      *                        it is passed through {@code rowUpdater}.
+     * @param rowUpdater      A {@link Function} object (preferably a singleton) which modifies {@link Row}s passed to it.
      * @throws IllegalArgumentException If a null value is passed to {@code rowUpdater},
      *                                  or if a value less than or equal to 0 is past to {@code updateThreshold}.
      */
-    public PriorityNonPreemptive(Function<Row, Row> rowUpdater, int updateThreshold) throws IllegalArgumentException {
+    public PriorityNonPreemptive(int updateThreshold, Function<Row, Row> rowUpdater) throws IllegalArgumentException {
         if (rowUpdater == null) {
             throw new IllegalArgumentException("rowUpdater cannot be null");
         }
@@ -32,7 +36,7 @@ public class PriorityNonPreemptive extends CPUScheduler {
     /**
      * Creates a 'standard' PSN scheduler model.
      *
-     * @see PriorityNonPreemptive#PriorityNonPreemptive(Function, int)
+     * @see PriorityNonPreemptive#PriorityNonPreemptive(int, Function)
      */
     public PriorityNonPreemptive() {
 
@@ -42,7 +46,7 @@ public class PriorityNonPreemptive extends CPUScheduler {
     private int threshold = -1;
 
     @Override
-    public void process() {
+    public void simulate() {
         Utility.sortRowListByArrivalTime(this.getRows());
 
         List<Row> rows = Utility.deepCopy(this.getRows());
@@ -63,19 +67,22 @@ public class PriorityNonPreemptive extends CPUScheduler {
             this.getTimeline().add(new Event(row.getProcessName(), time, time + row.getBurstTime()));
             int timeIncrease = row.getBurstTime();
             time += timeIncrease;
-
             rows.remove(row);
-            HashMap<Row, Row> replacementMap = new HashMap<>();
-            for (Row otherRow : rows) {
-                otherRow.incrementTimesSinceLastTouched(timeIncrease);
-                if (this.updater != null && otherRow.checkTSLTThreshold(threshold)) {
-                    Row replacement = otherRow.generateReplacement(updater);
-                    replacementMap.put(otherRow, replacement);
+
+            // impatient mode block
+            if (threshold > 0 && this.updater != null) {
+                HashMap<Row, Row> updateMap = new HashMap<>();
+                for (Row otherRow : rows) {
+                    otherRow.incrementTimesSinceLastTouched(timeIncrease);
+                    if (otherRow.checkTSLTThreshold(threshold)) {
+                        Row updated = otherRow.generateReplacement(updater);
+                        updateMap.put(otherRow, updated);
+                    }
                 }
-            }
-            for (Map.Entry<Row, Row> mapping : replacementMap.entrySet()) {
-                rows.remove(mapping.getKey());
-                rows.add(mapping.getValue());
+                for (Map.Entry<Row, Row> mapping : updateMap.entrySet()) {
+                    rows.remove(mapping.getKey());
+                    rows.add(mapping.getValue());
+                }
             }
         }
 

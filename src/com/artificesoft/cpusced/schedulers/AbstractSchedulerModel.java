@@ -1,14 +1,17 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers;
+
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class CPUScheduler {
+public abstract class AbstractSchedulerModel {
     private final List<Row> rows;
     private final List<Event> timeline;
     private int timeQuantum;
 
-    public CPUScheduler() {
+    public AbstractSchedulerModel() {
         rows = new ArrayList<>();
         timeline = new ArrayList<>();
         timeQuantum = 1;
@@ -74,5 +77,5 @@ public abstract class CPUScheduler {
         return timeline;
     }
 
-    public abstract void process();
+    public abstract void simulate();
 }

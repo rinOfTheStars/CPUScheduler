@@ -6,18 +6,19 @@ Fork of a Java implementation of 6 CPU scheduling algorithms: *First Come First 
 
 ## Usage
 
-Instantiate a `com.artificesoft.cpusced.CPUScheduler` object of the algorithm
+Instantiate a `com.artificesoft.cpusced.schedulers.AbstractSchedulerModel` object of the algorithm
 
 ```java
-import com.artificesoft.cpusced.FirstComeFirstServe;
+import com.artificesoft.cpusced.schedulers.FirstComeFirstServe;
 
 CPUScheduler fcfs = new FirstComeFirstServe();
 ```
 
-Add a new `com.artificesoft.cpusced.Row` for every job queued
+Add a new `com.artificesoft.cpusced.schedulers.model.Row` for every job queued
 
 ```java
-import com.artificesoft.cpusced.Row;fcfs.add(new Row("P1", 0,5));
+import com.artificesoft.cpusced.schedulers.model.Row;
+import com.artificesoft.cpusced.schedulers.model.Row;fcfs.add(new Row("P1", 0,5));
         fcfs.
 
 add(new Row("P2", 2,4));
@@ -26,7 +27,7 @@ add(new Row("P2", 2,4));
 add(new Row("P3", 4,3));
         fcfs.
 
-add(new Row("P4", 6,6));
+add(new com.artificesoft.cpusced.schedulers.model.Row("P4", 6,6));
 ```
 
 Call the `process` method
@@ -44,11 +45,11 @@ fcfs.getAverageTurnAroundTime();  // 8.0
 
 ### Round Robin
 
-In the case of `com.artificesoft.cpusced.RoundRobin`, you must first set a time quantum before calling `process`.
+In the case of `com.artificesoft.cpusced.schedulers.RoundRobin`, you must first set a time quantum before calling `process`.
 
 ```java
-import com.artificesoft.cpusced.RoundRobin;
-import com.artificesoft.cpusced.Row;
+import com.artificesoft.cpusced.schedulers.RoundRobin;
+import com.artificesoft.cpusced.schedulers.model.Row;import com.artificesoft.cpusced.schedulers.model.Row;
 
 CPUScheduler rr = new RoundRobin();
 
@@ -63,7 +64,7 @@ add(new Row("P2", 2,4));
 add(new Row("P3", 4,3));
         rr.
 
-add(new Row("P4", 6,6));
+add(new com.artificesoft.cpusced.schedulers.model.Row("P4", 6,6));
 
         rr.
 
@@ -75,14 +76,14 @@ process();
 
 ### Rows
 
-Using the object's `getRows` method will return a `List` of all queued `com.artificesoft.cpusced.Row`. After `process`, each `com.artificesoft.cpusced.Row` will reflect their respective computed *waiting time* and *turnaround time*.
+Using the object's `getRows` method will return a `List` of all queued `com.artificesoft.cpusced.schedulers.model.Row`. After `process`, each `com.artificesoft.cpusced.schedulers.model.Row` will reflect their respective computed *waiting time* and *turnaround time*.
 
 ```java
-import com.artificesoft.cpusced.Row;
-import com.artificesoft.cpusced.ShortestJobFirst;
+import com.artificesoft.cpusced.schedulers.model.Row;
+import com.artificesoft.cpusced.schedulers.ShortestJobFirst;import com.artificesoft.cpusced.schedulers.model.Row;
 
 CPUScheduler sjf = new ShortestJobFirst();
-List<Row> rows;
+List<com.artificesoft.cpusced.schedulers.model.Row> rows;
 
 sjf.
 
@@ -126,10 +127,10 @@ getTurnaroundTime();  // 7
 
 ### Timeline
 
-Using the object's `getTimeline` method will return a `List` of `com.artificesoft.cpusced.Event` which can be used to draw a Gantt chart. The timeline shows what job is being processed at the given time.
+Using the object's `getTimeline` method will return a `List` of `com.artificesoft.cpusced.schedulers.model.Event` which can be used to draw a Gantt chart. The timeline shows what job is being processed at the given time.
 
 ```java
-import com.artificesoft.cpusced.Event;
+import com.artificesoft.cpusced.schedulers.model.Event;
 
 List<Event> timeline = fcfs.getTimeline();
 

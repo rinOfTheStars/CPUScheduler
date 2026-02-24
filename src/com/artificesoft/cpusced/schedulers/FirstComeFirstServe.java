@@ -1,11 +1,14 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers;
+
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
 
 import java.util.Comparator;
 import java.util.List;
 
-public class FirstComeFirstServe extends CPUScheduler {
+public class FirstComeFirstServe extends AbstractSchedulerModel {
     @Override
-    public void process() {
+    public void simulate() {
         this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
 
         List<Event> timeline = this.getTimeline();

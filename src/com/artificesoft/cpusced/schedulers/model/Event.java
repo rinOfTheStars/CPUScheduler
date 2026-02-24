@@ -1,4 +1,4 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers.model;
 
 public class Event {
     private final String processName;

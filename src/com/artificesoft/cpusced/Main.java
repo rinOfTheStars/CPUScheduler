@@ -1,5 +1,9 @@
 package com.artificesoft.cpusced;
 
+import com.artificesoft.cpusced.schedulers.*;
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
+
 import java.util.List;
 
 public class Main {
@@ -19,28 +23,28 @@ public class Main {
     }
 
     public static void fcfs() {
-        CPUScheduler fcfs = new FirstComeFirstServe();
+        AbstractSchedulerModel fcfs = new FirstComeFirstServe();
         fcfs.add(new Row("P1", 0, 5));
         fcfs.add(new Row("P2", 2, 4));
         fcfs.add(new Row("P3", 4, 3));
         fcfs.add(new Row("P4", 6, 6));
-        fcfs.process();
+        fcfs.simulate();
         display(fcfs);
     }
 
     public static void sjf() {
-        CPUScheduler sjf = new ShortestJobFirst();
+        AbstractSchedulerModel sjf = new ShortestJobFirst();
         sjf.add(new Row("P1", 0, 5));
         sjf.add(new Row("P2", 2, 3));
         sjf.add(new Row("P3", 4, 2));
         sjf.add(new Row("P4", 6, 4));
         sjf.add(new Row("P5", 7, 1));
-        sjf.process();
+        sjf.simulate();
         display(sjf);
     }
 
     public static void srt() {
-        CPUScheduler srt = new ShortestRemainingTime();
+        AbstractSchedulerModel srt = new ShortestRemainingTime();
         srt.add(new Row("P1", 8, 1));
         srt.add(new Row("P2", 5, 1));
         srt.add(new Row("P3", 2, 7));
@@ -48,12 +52,12 @@ public class Main {
         srt.add(new Row("P5", 2, 8));
         srt.add(new Row("P6", 4, 2));
         srt.add(new Row("P7", 3, 5));
-        srt.process();
+        srt.simulate();
         display(srt);
     }
 
     public static void psn() {
-        CPUScheduler psn = new PriorityNonPreemptive();
+        AbstractSchedulerModel psn = new PriorityNonPreemptive();
         psn.add(new Row("P1", 8, 1));
         psn.add(new Row("P2", 5, 1));
         psn.add(new Row("P3", 2, 7));
@@ -61,12 +65,12 @@ public class Main {
         psn.add(new Row("P5", 2, 8));
         psn.add(new Row("P6", 4, 2));
         psn.add(new Row("P7", 3, 5));
-        psn.process();
+        psn.simulate();
         display(psn);
     }
 
     public static void psp() {
-        CPUScheduler psp = new PriorityPreemptive();
+        AbstractSchedulerModel psp = new PriorityPreemptive();
         psp.add(new Row("P1", 8, 1));
         psp.add(new Row("P2", 5, 1));
         psp.add(new Row("P3", 2, 7));
@@ -74,12 +78,12 @@ public class Main {
         psp.add(new Row("P5", 2, 8));
         psp.add(new Row("P6", 4, 2));
         psp.add(new Row("P7", 3, 5));
-        psp.process();
+        psp.simulate();
         display(psp);
     }
 
     public static void rr() {
-        CPUScheduler rr = new RoundRobin();
+        AbstractSchedulerModel rr = new RoundRobin();
         rr.setTimeQuantum(2);
         rr.add(new Row("P1", 0, 4));
         rr.add(new Row("P2", 1, 5));
@@ -87,11 +91,11 @@ public class Main {
         rr.add(new Row("P4", 4, 1));
         rr.add(new Row("P5", 6, 3));
         rr.add(new Row("P6", 7, 2));
-        rr.process();
+        rr.simulate();
         display(rr);
     }
 
-    public static void display(CPUScheduler object) {
+    public static void display(AbstractSchedulerModel object) {
         System.out.println("Process\tAT\tBT\tWT\tTAT");
 
         for (Row row : object.getRows()) {

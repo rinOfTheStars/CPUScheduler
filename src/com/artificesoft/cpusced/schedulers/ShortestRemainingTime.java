@@ -1,10 +1,14 @@
-package com.artificesoft.cpusced;
+package com.artificesoft.cpusced.schedulers;
+
+import com.artificesoft.cpusced.utility.Utility;
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
 
 import java.util.*;
 
-public class PriorityPreemptive extends CPUScheduler {
+public class ShortestRemainingTime extends AbstractSchedulerModel {
     @Override
-    public void process() {
+    public void simulate() {
         this.getRows().sort(Comparator.comparingInt((Object o) -> ((Row) o).getArrivalTime()));
 
         List<Row> rows = Utility.deepCopy(this.getRows());
@@ -19,7 +23,7 @@ public class PriorityPreemptive extends CPUScheduler {
                 }
             }
 
-            availableRows.sort(Comparator.comparingInt((Object o) -> ((Row) o).getPriorityLevel()));
+            availableRows.sort(Comparator.comparingInt((Object o) -> ((Row) o).getBurstTime()));
 
             Row row = availableRows.getFirst();
             this.getTimeline().add(new Event(row.getProcessName(), time, ++time));

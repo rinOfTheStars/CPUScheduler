@@ -1,5 +1,10 @@
 package com.artificesoft.cpusced;
 
+import com.artificesoft.cpusced.schedulers.*;
+import com.artificesoft.cpusced.schedulers.model.Event;
+import com.artificesoft.cpusced.schedulers.model.Row;
+import com.artificesoft.cpusced.schedulers.updaters.ImpatientUpdaterFunc;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -70,7 +75,7 @@ public class GUI {
         computeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         computeBtn.addActionListener(_ -> {
             SchedulerVariants selected = (SchedulerVariants) option.getSelectedItem();
-            CPUScheduler scheduler;
+            AbstractSchedulerModel scheduler;
 
             switch (selected) {
                 case FCFS:
@@ -96,8 +101,19 @@ public class GUI {
                     scheduler = new RoundRobin();
                     scheduler.setTimeQuantum(Integer.parseInt(tq));
                     break;
-                case PSN_MODDED:
-                    scheduler = new PriorityNonPreemptive(Mod1UpdaterFunction.SINGLETON, 3);
+                // "modded" PSP and PSN variants:
+                case IMPATIENT_PSN:
+                    scheduler = new PriorityNonPreemptive(3, ImpatientUpdaterFunc.SINGLETON);
+                    break;
+                case IMPATIENT_PSP:
+                    scheduler = new PriorityPreemptive(true, 3, ImpatientUpdaterFunc.SINGLETON);
+                    break;
+                case PUNISHING_PSP:
+                    scheduler = new PriorityPreemptive(true);
+                    break;
+                // is both impatient and punishing
+                case FULLMOD_PSP:
+                    scheduler = new PriorityPreemptive(true, true, 3, ImpatientUpdaterFunc.SINGLETON);
                     break;
                 case null, default:
                     return;
@@ -122,7 +138,7 @@ public class GUI {
                 scheduler.add(new Row(process, at, bt, pl));
             }
 
-            scheduler.process();
+            scheduler.simulate();
 
             for (int i = 0; i < model.getRowCount(); i++) {
                 String process = (String) model.getValueAt(i, 0);
@@ -205,8 +221,11 @@ public class GUI {
         SJF,
         SRT,
         PSN,
-        PSN_MODDED,
+        IMPATIENT_PSN,
         PSP,
+        PUNISHING_PSP,
+        IMPATIENT_PSP,
+        FULLMOD_PSP,
         RR
     }
 }
