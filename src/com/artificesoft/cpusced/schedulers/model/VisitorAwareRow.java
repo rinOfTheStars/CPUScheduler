@@ -30,14 +30,17 @@ public class VisitorAwareRow extends Row implements Comparable<VisitorAwareRow> 
 
     @Override
     public int compareTo(VisitorAwareRow row) {
-        if (visitationCount == row.visitationCount) {
+        int score;
+
+        if (this.visitationCount == row.visitationCount) {
             if (isArrivalFallbackOrdered) {
-                return this.getArrivalTime() - row.getArrivalTime();
+                score = this.getArrivalTime() - row.getArrivalTime();
             } else {
-                return this.getPriorityLevel() - row.getPriorityLevel();
+                score = this.getPriorityLevel() - row.getPriorityLevel();
             }
         } else {
-            return this.visitationCount - row.visitationCount;
+            score = this.visitationCount - row.visitationCount;
         }
+        return (score != 0) ? score : (this.getProcessName().compareTo(row.getProcessName()));
     }
 }

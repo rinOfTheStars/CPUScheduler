@@ -86,14 +86,14 @@ public class Row {
     }
 
     /**
-     * Increases the priority of the simulate represented by this row by 1.
+     * Increases the priority of the simulated process represented by this row by 1.
      */
     public void punishProcess() {
         this.priorityLevel++;
     }
 
     /**
-     * Decreases the priority of the simulate represented by this row by 1.
+     * Decreases the priority of the simulated process represented by this row by 1.
      * Uses {@link Math#max(int, int)} to prevent negative values.
      */
     public void rewardProcess() {
