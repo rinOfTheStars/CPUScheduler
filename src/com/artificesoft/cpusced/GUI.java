@@ -115,6 +115,19 @@ public class GUI {
                 case FULLMOD_PSP:
                     scheduler = new PriorityPreemptive(true, true, 3, ImpatientUpdaterFunc.SINGLETON);
                     break;
+                case MLFQ:
+                    String qt = JOptionPane.showInputDialog("Time Quantum");
+                    if (qt == null) {
+                        return;
+                    }
+                    String c = JOptionPane.showInputDialog("Number of queues");
+                    if (c == null) {
+                        return;
+                    }
+                    int qn = Integer.parseInt(qt);
+                    int count = Integer.parseInt(c);
+                    scheduler = new MLFQ(qn, count, (10 * qn), true, true);
+                    break;
                 case null, default:
                     return;
             }
@@ -226,6 +239,7 @@ public class GUI {
         PUNISHING_PSP,
         IMPATIENT_PSP,
         FULLMOD_PSP,
-        RR
+        RR,
+        MLFQ
     }
 }

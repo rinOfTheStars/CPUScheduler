@@ -14,11 +14,13 @@ public class MLFQ extends AbstractSchedulerModel {
     private final int boostTime;
     private final boolean isArrivalFallbackOrdered;
     private final List<PriorityQueue<VisitorAwareRow>> queues;
+    private final boolean isFinalQueueFCFS;
 
-    public MLFQ(int quantum, int queueCount, int boostTime, boolean isArrivalFallbackOrdered) {
+    public MLFQ(int quantum, int queueCount, int boostTime, boolean isArrivalFallbackOrdered, boolean isFinalQueueFCFS) {
         this.boostTime = Math.max(boostTime, quantum);
         this.queues = new ArrayList<>();
         this.isArrivalFallbackOrdered = isArrivalFallbackOrdered;
+        this.isFinalQueueFCFS = isFinalQueueFCFS;
 
         for (int i = 0; i < queueCount; i++) {
             queues.add(new PriorityQueue<>());
@@ -37,8 +39,8 @@ public class MLFQ extends AbstractSchedulerModel {
         int timeSinceLastBoost = 0;
         // loop should only stop once both the list of not-yet-arrived processes AND all processes in the queues are exhausted
         // inverting that, the loop continues while either of those conditions are false
+        List<VisitorAwareRow> newArrivals = new ArrayList<>();
         while (!rows.isEmpty() || !isComplete()) {
-            List<VisitorAwareRow> newArrivals = new ArrayList<>();
             for (VisitorAwareRow v : rows) {
                 if (v.getArrivalTime() <= time) {
                     newArrivals.add(v);
@@ -47,6 +49,8 @@ public class MLFQ extends AbstractSchedulerModel {
             // new arrivals enter at Q0 (first queue in queues)
             if (!newArrivals.isEmpty()) {
                 queues.getFirst().addAll(newArrivals);
+                rows.removeAll(newArrivals);
+                newArrivals.clear();
             }
             int depth = 0;
             VisitorAwareRow current = null;
@@ -62,18 +66,30 @@ public class MLFQ extends AbstractSchedulerModel {
             }
 
             if (current != null) {
-                int actualQuantum = getActualQuantum(depth);
-                // the amount of time in this 'tick' is the remaining burst of current or the quantum, whichever is smaller
-                int tickDuration = Math.min(current.getBurstTime(), actualQuantum);
-                int updatedTime = time + tickDuration;
-                Event event = new Event(current.getProcessName(), time, updatedTime);
-                time = updatedTime;
-                current.setBurstTime(tickDuration - actualQuantum);
-                if (current.getBurstTime() > 0) {
-                    // send current process to next queue if it's not complete, or back to this queue if this is the lowest queue
-                    queues.get(Math.min(depth + 1, queues.size() - 1)).add(current);
-                    // visitation is how we maintain round-robin-like behavior
-                    current.doVisit();
+                int tickDuration;
+                Event event;
+                if (depth == queues.size() - 1 && isFinalQueueFCFS) {
+                    // lowest priority queue is FCFS
+                    tickDuration = current.getBurstTime();
+                    int updatedTime = time + tickDuration;
+                    event = new Event(current.getProcessName(), time, updatedTime);
+                    time = updatedTime;
+                    // do not need to do visitation since FCFS fully exhausts the current process before allowing a context switch
+                } else {
+                    int actualQuantum = getActualQuantum(depth);
+                    // the amount of time in this 'tick' is the remaining burst of current or the quantum, whichever is smaller
+                    tickDuration = Math.min(current.getBurstTime(), actualQuantum);
+                    int updatedTime = time + tickDuration;
+                    event = new Event(current.getProcessName(), time, updatedTime);
+                    time = updatedTime;
+                    current.setBurstTime(current.getBurstTime() - actualQuantum);
+                    if (current.getBurstTime() > 0) {
+                        // send current process to next queue if it's not complete, or back to this queue if this is the lowest queue
+                        // (latter case is only a failsafe and shouldn't occur)
+                        queues.get(Math.min(depth + 1, queues.size() - 1)).add(current);
+                        // visitation is how we maintain round-robin-like behavior
+                        current.doVisit();
+                    }
                 }
                 timeSinceLastBoost += tickDuration;
                 this.getTimeline().add(event);
@@ -133,9 +149,13 @@ public class MLFQ extends AbstractSchedulerModel {
     }
 
     private boolean isComplete() {
-        for (PriorityQueue<VisitorAwareRow> queue : queues) {
-            if (!queue.isEmpty()) return false;
+        boolean anyNotEmpty = false;
+        for (PriorityQueue<VisitorAwareRow> q : queues) {
+            if (!q.isEmpty()) {
+                anyNotEmpty = true;
+                break;
+            }
         }
-        return true;
+        return !anyNotEmpty;
     }
 }

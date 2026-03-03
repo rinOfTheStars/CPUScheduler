@@ -29,7 +29,7 @@ public class ShortestRemainingTime extends AbstractSchedulerModel {
             this.getTimeline().add(new Event(row.getProcessName(), time, ++time));
             row.setBurstTime(row.getBurstTime() - 1);
 
-            if (row.getBurstTime() == 0) {
+            if (row.getBurstTime() <= 0) {
                 for (int i = 0; i < rows.size(); i++) {
                     if (rows.get(i).getProcessName().equals(row.getProcessName())) {
                         rows.remove(i);
